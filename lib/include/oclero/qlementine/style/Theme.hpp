@@ -143,6 +143,9 @@ public: // Values.
   QColor semiTransparentColorTransparent{ QRgba64::fromArgb32(0x00000000) };
 
   bool useSystemFonts{ false };
+  QString regularFontName {};
+  QString monoFontName {};
+  QString titleFontName {};
 
   int fontSize{ 12 };
   int fontSizeMonospace{ 13 };

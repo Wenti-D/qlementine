@@ -158,6 +158,18 @@ QJsonDocument readJsonDoc(QString const& jsonPath) {
   return {};
 }
 
+bool isFontAvailable(const QString& fontName) {
+  if (fontName.isEmpty()) {
+    return false;
+  }
+  for (auto name : QFontDatabase::families()) {
+    if (name.contains(fontName)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 void setColor(QJsonObject& jsonObj, const QString& key, const QColor& value) {
   jsonObj.insert(key, toHexRGBA(value));
 }
@@ -209,27 +221,26 @@ std::optional<Theme> Theme::fromJsonDoc(const QJsonDocument& jsonDoc) {
 void Theme::initializeFonts() {
   // Fonts.
   const auto defaultFont =
-    useSystemFonts ? QFontDatabase::systemFont(QFontDatabase::GeneralFont) : QFont(QStringLiteral("Inter"));
+    useSystemFonts ? QFontDatabase::systemFont(QFontDatabase::GeneralFont) :
+      isFontAvailable(regularFontName) ? QFont(regularFontName) : QFont(QStringLiteral("Inter"));
+  qDebug() << "Default font:" << defaultFont.family();
   const auto fixedFont =
-    useSystemFonts ? QFontDatabase::systemFont(QFontDatabase::FixedFont) : QFont(QStringLiteral("Roboto Mono"));
+    useSystemFonts ? QFontDatabase::systemFont(QFontDatabase::FixedFont) :
+      isFontAvailable(monoFontName) ? QFont(monoFontName) : QFont(QStringLiteral("Roboto Mono"));
   const auto titleFont =
-    useSystemFonts ? QFontDatabase::systemFont(QFontDatabase::TitleFont) : QFont(QStringLiteral("Inter Display"));
-
+    useSystemFonts ? QFontDatabase::systemFont(QFontDatabase::TitleFont) :
+      isFontAvailable(titleFontName) ? QFont(titleFontName) : QFont(QStringLiteral("Inter Display"));
   const auto dpi = QGuiApplication::primaryScreen()->logicalDotsPerInch();
 
   fontRegular = defaultFont;
-  if (useSystemFonts) {
-    fontSize = defaultFont.pointSize();
-  } else {
+  if (!useSystemFonts) {
     fontRegular.setWeight(QFont::Weight::Normal);
-    fontRegular.setPointSizeF(pixelSizeToPointSize(fontSize, dpi));
   }
+  fontRegular.setPointSizeF(pixelSizeToPointSize(fontSize, dpi));
 
   fontBold = defaultFont;
   fontBold.setWeight(QFont::Weight::Bold);
-  if (!useSystemFonts) {
-    fontBold.setPointSizeF(pixelSizeToPointSize(fontSize, dpi));
-  }
+  fontBold.setPointSizeF(pixelSizeToPointSize(fontSize, dpi));
 
   fontH1 = titleFont;
   fontH1.setWeight(QFont::Weight::Bold);
@@ -252,20 +263,16 @@ void Theme::initializeFonts() {
   fontH5.setPointSizeF(pixelSizeToPointSize(fontSizeH5, dpi));
 
   fontCaption = defaultFont;
-  if (useSystemFonts) {
-    fontSizeS1 = defaultFont.pointSize();
-  } else {
+  if (!useSystemFonts) {
     fontCaption.setWeight(QFont::Weight::Normal);
-    fontCaption.setPointSizeF(pixelSizeToPointSize(fontSizeS1, dpi));
   }
+  fontCaption.setPointSizeF(pixelSizeToPointSize(fontSizeS1, dpi));
 
   fontMonospace = fixedFont;
-  if (useSystemFonts) {
-    fontSizeMonospace = fixedFont.pointSize();
-  } else {
+  if (!useSystemFonts) {
     fontMonospace.setWeight(QFont::Weight::Normal);
-    fontMonospace.setPointSizeF(pixelSizeToPointSize(fontSizeMonospace, dpi));
   }
+  fontMonospace.setPointSizeF(pixelSizeToPointSize(fontSizeMonospace, dpi));
 }
 
 void Theme::initializePalette() {
@@ -437,6 +444,9 @@ bool Theme::initializeFromJson(QJsonDocument const& jsonDoc) {
     shadowColorTransparent = colorWithAlpha(shadowColor1, 0);
 
     TRY_GET_BOOL_ATTRIBUTE(jsonObj, useSystemFonts);
+    regularFontName = tryGetString(jsonObj, "regularFontName", {});
+    monoFontName = tryGetString(jsonObj, "monoFontName", {});
+    titleFontName = tryGetString(jsonObj, "titleFontName", {});
 
     TRY_GET_INT_ATTRIBUTE(jsonObj, fontSize);
     TRY_GET_INT_ATTRIBUTE(jsonObj, fontSizeMonospace);
@@ -586,6 +596,9 @@ QJsonDocument Theme::toJson() const {
   SET_COLOR(jsonObj, semiTransparentColor4);
 
   SET_BOOL(jsonObj, useSystemFonts);
+  jsonObj.insert("regularFontName", regularFontName);
+  jsonObj.insert("monoFontName", monoFontName);
+  jsonObj.insert("titleFontName", titleFontName);
 
   SET_INT(jsonObj, fontSize);
   SET_INT(jsonObj, fontSizeMonospace);
