@@ -223,7 +223,6 @@ void Theme::initializeFonts() {
   const auto defaultFont =
     useSystemFonts ? QFontDatabase::systemFont(QFontDatabase::GeneralFont) :
       isFontAvailable(regularFontName) ? QFont(regularFontName) : QFont(QStringLiteral("Inter"));
-  qDebug() << "Default font:" << defaultFont.family();
   const auto fixedFont =
     useSystemFonts ? QFontDatabase::systemFont(QFontDatabase::FixedFont) :
       isFontAvailable(monoFontName) ? QFont(monoFontName) : QFont(QStringLiteral("Roboto Mono"));
