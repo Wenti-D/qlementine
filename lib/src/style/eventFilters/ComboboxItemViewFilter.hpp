@@ -104,10 +104,12 @@ private:
           // Width.
           const auto absoluteMinWidth = qlementineStyle->theme().controlHeightLarge * (isTreeView ? 2 : 1);
           const auto absoluteMaxWidth = qlementineStyle->theme().controlHeightLarge * 24;
+          const auto viewMinWidth = _view->minimumWidth() - shadowWidth * 2 - hMargin * 2 - borderWidth * 2;
           const auto width = std::min(absoluteMaxWidth, std::max({
                                                           _comboBox->width(),
                                                           view->sizeHintForColumn(0),
                                                           absoluteMinWidth,
+                                                          viewMinWidth,
                                                         }))
                              + shadowWidth * 2 + hMargin * 2 + borderWidth * 2;
 
@@ -146,6 +148,7 @@ private:
         const auto rowSizeHint = _view->sizeHintForRow(i);
         height = std::min(_initialMaxHeight, height + rowSizeHint);
       }
+      height = std::max(height, _view->minimumHeight());
     }
     // It looks like it is OK for the width, though.
     const auto width = _view->sizeHintForColumn(0);
