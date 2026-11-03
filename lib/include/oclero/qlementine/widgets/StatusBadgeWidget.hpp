@@ -3,19 +3,22 @@
 
 #pragma once
 
+#include <oclero/qlementine/qlementine_export.h>
+
 #include <QWidget>
 
 #include <oclero/qlementine/utils/BadgeUtils.hpp>
 
 namespace oclero::qlementine {
 /// A QWidget that displays a badge indicating Status (Error, etc.).
-class StatusBadgeWidget : public QWidget {
+class QLEMENTINE_EXPORT StatusBadgeWidget : public QWidget {
   Q_OBJECT
 
 public:
   explicit StatusBadgeWidget(QWidget* parent = nullptr);
   StatusBadgeWidget(StatusBadge badge, QWidget* parent = nullptr);
   StatusBadgeWidget(StatusBadge badge, StatusBadgeSize badgeSize, QWidget* parent = nullptr);
+  ~StatusBadgeWidget() override = default;
 
   StatusBadge badge() const;
   Q_SLOT void setBadge(StatusBadge badge);

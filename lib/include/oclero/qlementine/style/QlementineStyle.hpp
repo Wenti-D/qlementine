@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <oclero/qlementine/qlementine_export.h>
 #include <oclero/qlementine/style/Theme.hpp>
 #include <oclero/qlementine/utils/ImageUtils.hpp>
 #include <oclero/qlementine/utils/IconUtils.hpp>
@@ -17,7 +18,7 @@ class CommandLinkButtonPaintEventFilter;
 class LineEditButtonEventFilter;
 struct QlementineStyleImpl;
 
-class QlementineStyle : public QCommonStyle {
+class QLEMENTINE_EXPORT QlementineStyle : public QCommonStyle {
   Q_OBJECT
 
   Q_PROPERTY(bool animationsEnabled READ animationsEnabled WRITE setAnimationsEnabled NOTIFY animationsEnabledChanged)
@@ -67,10 +68,13 @@ public:
   AutoIconColor autoIconColor() const;
 
   static void setAutoIconColor(QWidget* widget, AutoIconColor autoIconColor);
-  AutoIconColor autoIconColor(const QWidget* widget) const;
+  static AutoIconColor autoIconColor(const QWidget* widget);
 
   QPixmap getColorizedPixmap(
     const QPixmap& input, AutoIconColor autoIconColor, const QColor& fgcolor, const QColor& textColor) const;
+
+  QPixmap getColorizedPixmap(const QPixmap& input, const QWidget* widget, const QColor& fgColor,
+    const QColor& textColor, MouseState mouse = MouseState::Normal) const;
 
   QIcon makeThemedIcon(
     const QString& svgPath, const QSize& size = QSize(16, 16), ColorRole role = ColorRole::Secondary) const;
@@ -284,6 +288,7 @@ public: // Theme-related methods.
   virtual QColor const& tableLineColor() const;
 
   virtual Status widgetStatus(QWidget const* widget) const;
+  static void setWidgetStatus(QWidget* widget, Status status);
 
   friend class CommandLinkButtonPaintEventFilter;
   friend class LineEditButtonEventFilter;
@@ -298,5 +303,5 @@ private:
   std::unique_ptr<QlementineStyleImpl> _impl;
 };
 
-QlementineStyle* appStyle();
+QLEMENTINE_EXPORT QlementineStyle* appStyle();
 } // namespace oclero::qlementine

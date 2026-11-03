@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <oclero/qlementine/qlementine_export.h>
+
 #include <QWidget>
 #include <QPointer>
 #include <QVariantAnimation>
@@ -10,7 +12,7 @@
 namespace oclero::qlementine {
 /// A QWidget that allows to expand vertically or horizontally,
 /// revealing or hiding its content with an animation.
-class Expander : public QWidget {
+class QLEMENTINE_EXPORT Expander : public QWidget {
   Q_OBJECT
 
   Q_PROPERTY(bool expanded READ expanded WRITE setExpanded NOTIFY expandedChanged)
@@ -18,6 +20,7 @@ class Expander : public QWidget {
 
 public:
   explicit Expander(QWidget* parent = nullptr);
+  ~Expander() override = default;
 
   bool expanded() const;
   Q_SLOT void setExpanded(bool expanded);

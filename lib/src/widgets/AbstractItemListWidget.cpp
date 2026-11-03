@@ -37,7 +37,7 @@ AbstractItemListWidget::AbstractItemListWidget(QWidget* parent)
   _badgeFont.setBold(true);
 }
 
-AbstractItemListWidget ::~AbstractItemListWidget() = default;
+AbstractItemListWidget::~AbstractItemListWidget() = default;
 
 int AbstractItemListWidget::itemCount() const {
   return static_cast<int>(_items.size());
@@ -675,6 +675,7 @@ void AbstractItemListWidget::initStyleOptionFocus(QStyleOptionFocusRoundedRect& 
 void AbstractItemListWidget::paintEvent(QPaintEvent*) {
   QPainter p(this);
   p.setRenderHint(QPainter::Antialiasing, true);
+  p.setRenderHint(QPainter::SmoothPixmapTransform, true);
 
   // Background.
   drawBackground(p);

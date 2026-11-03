@@ -3,13 +3,15 @@
 
 #pragma once
 
+#include <oclero/qlementine/qlementine_export.h>
+
 #include <QWidget>
 #include <QPointer>
 #include <QMargins>
 
 namespace oclero::qlementine {
 /// A small badge to display a notification (with or without text) on another widget.
-class NotificationBadge : public QWidget {
+class QLEMENTINE_EXPORT NotificationBadge : public QWidget {
   Q_OBJECT
 
   Q_PROPERTY(QString text READ text WRITE setText NOTIFY textChanged)
@@ -19,6 +21,7 @@ class NotificationBadge : public QWidget {
 
 public:
   explicit NotificationBadge(QWidget* parent = nullptr);
+  ~NotificationBadge() override = default;
 
   // Will track changes to widget and resize itself automatically.
   // If the monitored widget's parent changes, will follow the widget and place

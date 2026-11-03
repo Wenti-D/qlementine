@@ -23,12 +23,15 @@ inline bool isDefaultItemDelegate(const QAbstractItemDelegate* delegate) {
   if (!delegate)
     return true;
   const auto* meta = delegate->metaObject();
-  return meta == &QStyledItemDelegate::staticMetaObject || meta == &QItemDelegate::staticMetaObject;
+  return meta == &QStyledItemDelegate::staticMetaObject || meta == &QItemDelegate::staticMetaObject
+         || QByteArray(meta->className()) == "QComboMenuDelegate";
 }
 
 // Event filter for the item view in the QComboBox's popup.
 class ComboboxItemViewFilter : public QObject {
 public:
+  ~ComboboxItemViewFilter() override = default;
+
   ComboboxItemViewFilter(QComboBox* comboBox, QAbstractItemView* view)
     : QObject(view)
     , _comboBox(comboBox)
@@ -116,10 +119,18 @@ private:
           // Height.
           const auto absoluteMinHeight = qlementineStyle->theme().controlHeightLarge * (isTreeView ? 5 : 1);
           const auto screen = view->screen();
-          const auto viewGlobalY =
-            view->mapToGlobal(QPoint(0, 0)).y(); // Don't exceed the screen height when expanding a tree view.
-          const auto absoluteMaxHeight = screen != nullptr ? screen->geometry().height() - 128 - viewGlobalY
-                                                           : qlementineStyle->theme().controlHeightLarge * 10;
+          // Don't exceed the available screen space above or below the combobox.
+          const auto comboGlobalY = _comboBox->mapToGlobal(QPoint(0, 0)).y();
+          constexpr auto screenPadding = 128;
+          int absoluteMaxHeight;
+          if (screen != nullptr) {
+            const auto screenGeom = screen->availableGeometry();
+            const auto spaceBelow = screenGeom.bottom() - comboGlobalY - _comboBox->height() - screenPadding;
+            const auto spaceAbove = comboGlobalY - screenGeom.top() - screenPadding;
+            absoluteMaxHeight = std::max(spaceBelow, spaceAbove);
+          } else {
+            absoluteMaxHeight = qlementineStyle->theme().controlHeightLarge * 10;
+          }
           const auto height = std::min(absoluteMaxHeight, std::max(absoluteMinHeight, viewMinimumSizeHint().height()));
 
           view->setFixedWidth(width);
@@ -163,6 +174,8 @@ private:
 
 class ComboboxFilter : public QObject {
 public:
+  ~ComboboxFilter() override = default;
+
   explicit ComboboxFilter(QComboBox* comboBox)
     : QObject(comboBox)
     , _comboBox(comboBox) {
